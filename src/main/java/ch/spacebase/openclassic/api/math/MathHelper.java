@@ -7,21 +7,31 @@ public class MathHelper {
 
 	public static final float f_2PI = (float) (2.0d * Math.PI);
 	public static final float DEG_TO_RAD = 0.01745329f;
-	private static float SIN[] = new float[65536];
+    private static float[] SIN_TABLE = new float[65536];
 
-	static {
-		for (int i = 0; i < 65536; i++) {
-			SIN[i] = (float) Math.sin((i * Math.PI * 2D) / 65536D);
-		}
-	}
+    static
+    {
+        for (int i = 0; i < 4096; ++i)
+        {
+            SIN_TABLE[i] = (float)Math.sin((double)i * Math.PI * 2.0D / 4096.0D);
+        }
+    }
 
-	public static float sin(float f) {
-		return SIN[(int) (f * 10430.38F) & 0xffff];
-	}
+    /**
+     * sin looked up in a table
+     */
+    public static final float sin(float f)
+    {
+        return SIN_TABLE[(int)(f * 651.8986F) & 4095];
+    }
 
-	public static float cos(float f) {
-		return SIN[(int) (f * 10430.38F + 16384F) & 0xffff];
-	}
+    /**
+     * cos looked up in the sin table with the appropriate offset
+     */
+    public static final float cos(float f)
+    {
+        return SIN_TABLE[(int)(f * 651.8986F + 1024.0F) & 4095];
+    }
 	
 	public static Vector toForwardVec(float yaw, float pitch) {
 		float xzLen = MathHelper.cos(-pitch * DEG_TO_RAD);
